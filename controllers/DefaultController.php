@@ -23,4 +23,10 @@ class DefaultController extends Controller
             ]
         ];
     }
+
+    public function beforeAction($action)
+    {
+        $this->enableCsrfValidation = $this->module->enableCsrfValidation;
+        return parent::beforeAction($action);
+    }
 }

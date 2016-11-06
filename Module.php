@@ -32,6 +32,9 @@ class Module extends \yii\base\Module
      */
     public $allowChangeVote = true;
 
+    /** @var bool  */
+    public $enableCsrfValidation = true;
+
     /**
      * Matching models with integer id's
      * @var array
