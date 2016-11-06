@@ -10,10 +10,8 @@ namespace chiliec\vote\widgets;
 use chiliec\vote\models\Rating;
 use yii\base\InvalidParamException;
 use yii\base\Widget;
-use yii\helpers\Html;
 use yii\web\View;
 use yii\web\JsExpression;
-use yii\helpers\Json;
 use Yii;
 
 class Vote extends Widget
@@ -22,6 +20,9 @@ class Vote extends Widget
      * @var ActiveRecord
      */
     public $model;
+
+    /** @var  string */
+    public $viewFile;
 
     /**
      * @var string
@@ -170,7 +171,8 @@ JS;
 
     public function run()
     {
-        return $this->render('vote', [
+        $viewFile = $this->viewFile ?: 'vote';
+        return $this->getView()->render($viewFile, [
             'modelId' => Rating::getModelIdByName($this->model->className()),
             'targetId' => $this->model->{$this->model->primaryKey()[0]},
             'likes' => isset($this->model->aggregate->likes) ? $this->model->aggregate->likes : 0,
