@@ -217,7 +217,7 @@ JS;
             'rating' => isset($this->model->aggregate->rating) ? $this->model->aggregate->rating : 0.0,
             'showAggregateRating' => $this->showAggregateRating,
             'isVoted' => $this->isVoted(),
-            'getChoice' => $this->getChoice(),
+            'choice' => $this->getChoice(),
         ]);
     }
 
