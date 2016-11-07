@@ -34,6 +34,8 @@ class Module extends \yii\base\Module
 
     /** @var bool  */
     public $enableCsrfValidation = true;
+    /** @var string AJAX handler */
+    public $action = '\chiliec\vote\actions\VoteAction';
 
     /**
      * Matching models with integer id's

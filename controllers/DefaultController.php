@@ -19,7 +19,7 @@ class DefaultController extends Controller
     {
         return [
             'vote' => [
-                'class' => VoteAction::className(),
+                'class' => Yii::$app->getModule('vote')->action,
             ]
         ];
     }
