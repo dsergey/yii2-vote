@@ -8,8 +8,10 @@
 namespace chiliec\vote\widgets;
 
 use chiliec\vote\models\Rating;
+use chiliec\vote\Module;
 use yii\base\InvalidParamException;
 use yii\base\Widget;
+use yii\db\ActiveRecord;
 use yii\web\View;
 use yii\web\JsExpression;
 use Yii;
@@ -167,18 +169,77 @@ JS;
             }
         ");
          $this->view->registerJs($js, View::POS_END, $this->jsCodeKey);
+
+        $this->afterInit();
+    }
+
+    /** @var  int */
+    private $_modelId;
+    /** @var  int */
+    private $_targetId;
+    /** @var  Rating */
+    private $_rating;
+
+    /**
+     * Trying get rating
+     */
+    public function afterInit()
+    {
+        $this->_modelId = Rating::getModelIdByName($this->model->className());
+        $this->_targetId = $this->model->{$this->model->primaryKey()[0]};
+
+        $userIp = Rating::compressIp(Yii::$app->request->getUserIP());
+        $userId = Yii::$app->user->getId();
+
+        if (Rating::getIsAllowGuests($this->_modelId)) {
+            $this->_rating = Rating::findOne([
+                'model_id' => $this->_modelId,
+                'target_id' => $this->_targetId,
+                'user_ip' => $userIp]);
+
+        } else {
+            $this->_rating = Rating::findOne([
+                'model_id' => $this->_modelId,
+                'target_id' => $this->_targetId,
+                'user_id' => $userId]);
+        }
+
     }
 
     public function run()
     {
         $viewFile = $this->viewFile ?: 'vote';
         return $this->getView()->render($viewFile, [
-            'modelId' => Rating::getModelIdByName($this->model->className()),
-            'targetId' => $this->model->{$this->model->primaryKey()[0]},
+            'modelId' => $this->_modelId,
+            'targetId' => $this->_targetId,
             'likes' => isset($this->model->aggregate->likes) ? $this->model->aggregate->likes : 0,
             'dislikes' => isset($this->model->aggregate->dislikes) ? $this->model->aggregate->dislikes : 0,
             'rating' => isset($this->model->aggregate->rating) ? $this->model->aggregate->rating : 0.0,
             'showAggregateRating' => $this->showAggregateRating,
+            'isVoted' => $this->isVoted(),
+            'getChoice' => $this->getChoice(),
         ]);
     }
+
+
+    /**
+     * @return bool
+     */
+    private function isVoted()
+    {
+        return $this->_rating ? true : false;
+    }
+
+    /**
+     * @return bool|int
+     */
+    private function getChoice()
+    {
+        if ($this->_rating) {
+            return $this->_rating->value;
+        }
+
+        return false;
+    }
+
 }
